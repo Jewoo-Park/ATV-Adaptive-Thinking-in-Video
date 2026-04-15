@@ -1,35 +1,28 @@
-.DS_Store
 __pycache__/
 *.pyc
-tmp/
-video_r1_sft_annotator/.git/
-video_r1_sft_annotator/.venv/
-video_r1_sft_annotator/.tmp_export_test/
-video_r1_sft_annotator/**/__pycache__/
-video_r1_sft_annotator/.DS_Store
-video_r1_sft_annotator/src/.DS_Store
-
-# Training outputs/logs
-src/r1-v/outputs/
-src/r1-v/src/r1-v/outputs/
-src/r1-v/logs/
-logs/
-sft/outputs/
-
-# Local environments
+*.pyo
+*.log
+.env
 .venv/
 venv/
-.venv_realign/
-.venv_sft/
 
-# Ignore only repo-root `data` (symlink to scratch or local copies). Do not use `data/` — it hides `sft/data/`.
-/data
+data/
+outputs/
+checkpoints/
+wandb/
+runs/
+cache/
+tmp/
 
-.cursor/
-*.egg-info/
-sft/*.log
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.ckpt
 
-# Large SFT data under sft/data (frames, jsonl); keep only shell helpers versioned
-sft/data/*
-!sft/data/prepare_/
-!sft/data/prepare_/**
+*.jpg
+*.jpeg
+*.png
+*.mp4
+*.avi
+*.mov
