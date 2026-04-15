@@ -503,6 +503,10 @@ def preprocess_samples(
         if parsed is None:
             continue
 
+        if compact_answer_block(extract_tag_block(parsed["output_text"], "ANSWER")) is None:
+            stats["skip_invalid_answer_format"] += 1
+            continue
+
         if sft_mode == "length":
             sample_enabled_formats = enabled_formats
             sample_depth = str(sample.get("reasoning_depth") or "").strip().upper()

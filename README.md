@@ -62,30 +62,30 @@ GRPO_Video_2/
 
 | 목적 | 내용 | 비고 |
 |------|------|------|
-| **Dataset 1 (length)** | `<ANSWER>`, `<COT>`, `<LONG_COT>` 등 길이·형식 supervision | raw 예: `question`, `options`, `gold_answer`, `frame_subdir`, `answer_raw`, `cot_raw`, `long_cot_raw` |
-| **Dataset 2 (perspective)** | `<REASONING_TYPE>`, `<REASONING>`, `<ANSWER>` (추론 관점) | raw 예: `granularity_type`, `granularity_thinking_raw` 등 |
+| **Dataset 1 (length)** | `<ANSWER>`, `<COT>`, `<LONG_COT>` 등 길이·형식 supervision | strict 산출물: `data/generated_length_strict.jsonl` |
+| **Dataset 2 (perspective)** | `<ABSTRACT>`, `<TEMPORAL>`, `<SPATIOTEMPORAL>`, `<ANSWER>` (추론 관점) | strict 산출물: `data/video_r1_perspective_sft_granulity_strict.jsonl` |
 
 raw JSONL을 학습용으로 바꿀 때:
 
 ```bash
 cd sft
-python scripts/prepare_sft_dataset.py --mode length   --input data/generated_length.jsonl   --output data/video_r1_length_sft.jsonl
-python scripts/prepare_sft_dataset.py --mode perspective --input data/generated_granulity.jsonl --output data/video_r1_perspective_sft.jsonl
+python scripts/prepare_sft_dataset.py --mode length --input data/generated_length.jsonl --output data/generated_length_strict.jsonl
+python scripts/prepare_sft_dataset.py --mode perspective --input data/generated_granulity.jsonl --output data/video_r1_perspective_sft_granulity_strict.jsonl
 ```
 
-기본 학습 YAML의 `train_files`는 예를 들어 `video_r1_length_sft_from_filtered.jsonl`, `video_r1_perspective_sft.jsonl` 등을 가리킵니다. **scratch에만 두었다면** 해당 YAML의 경로를 맞추거나 심볼릭 링크를 사용합니다.
+기본 학습 YAML의 `train_files`는 strict MCQ-only 산출물인 `generated_length_strict.jsonl`, `video_r1_perspective_sft_granulity_strict.jsonl`을 가리킵니다. **scratch에만 두었다면** 해당 YAML의 경로를 맞추거나 심볼릭 링크를 사용합니다.
 
 ### 2-2. GRPO 학습용
 
-- **Train**: `data/video_r1/grpo/video_r1_grpo_train.jsonl` (Video-R1 전처리 결과)
+- **Train**: `data/video_r1/grpo/video_r1_grpo_train_strict.jsonl` (Video-R1 strict MCQ 전처리 결과)
 
 ### 2-3. 테스트 세트 (세 종)
 
 레포 기준 상대 경로( scratch `data` 루트와 동일):
 
-- `data/urban_video_bench/grpo/uvb_grpo_test.jsonl`
-- `data/video_mmmu/grpo/videommmu_grpo_test.jsonl`
-- `data/mmvu/grpo/mmvu_grpo_test.jsonl`
+- `data/urban_video_bench/grpo/uvb_grpo_test_strict.jsonl`
+- `data/video_mmmu/grpo/videommmu_grpo_test_strict.jsonl`
+- `data/mmvu/grpo/mmvu_grpo_test_strict.jsonl`
 
 데이터 준비 스크립트는 `sft/data/prepare_/` 등에 복사본이 있을 수 있으며, 원본 파이프라인은 `src/eval/` 및 레포 내 `prepare_*` 스크립트를 참고하면 됩니다.
 
@@ -206,12 +206,12 @@ source /path/to/GRPO_Video_2/scripts/hpc_activate_grpo.sh
 
 ### 5-4. 데이터 확인
 
-- 학습 소스: 환경 변수 **`TRAIN_FILE`** (기본값은 `data/video_r1/grpo/video_r1_grpo_train.jsonl`을 `TRAIN_SOURCE`로 사용)
+- 학습 소스: 환경 변수 **`TRAIN_FILE`** (기본값은 `data/video_r1/grpo/video_r1_grpo_train_strict.jsonl`을 `TRAIN_SOURCE`로 사용)
 - 스크립트는 `split_jsonl_train_eval.py`로 **train/eval 분할 JSONL**을 만들고, **기본**으로는 그 **eval 분할**을 테스트 JSONL로 넘깁니다.
 - **UVB / VideoMMMU / MMVU** 등 고정 벤치마크를 쓰려면 **`GRPO_TEST_FILE`**에 해당 JSONL 경로를 지정합니다. (미설정 시 train에서 뽑은 eval 분할을 사용)
 
 ```bash
-export GRPO_TEST_FILE="$(pwd)/data/urban_video_bench/grpo/uvb_grpo_test.jsonl"
+export GRPO_TEST_FILE="$(pwd)/data/urban_video_bench/grpo/uvb_grpo_test_strict.jsonl"
 ```
 
 ### 5-5. GRPO 실행
@@ -224,7 +224,7 @@ source scripts/hpc_activate_grpo.sh
 
 export QWEN_PATH="/scratch/users/<USER>/models/qwen25vl7b_lora_merged_length"
 export QWEN_BASE_PATH="/scratch/users/<USER>/models/Qwen2.5-VL-7B-Instruct"
-export TRAIN_FILE="$(pwd)/data/video_r1/grpo/video_r1_grpo_train.jsonl"
+export TRAIN_FILE="$(pwd)/data/video_r1/grpo/video_r1_grpo_train_strict.jsonl"
 export OUTPUT_DIR="$(pwd)/src/r1-v/outputs/video_r1_uvb_grpo_answer_only_lora"
 export NUM_GPUS=2
 export TRAIN_NUM_GPUS=1
@@ -283,15 +283,15 @@ python scripts/merge_lora.py --config configs/merge_lora_grpo_length.yaml
 예 (Urban Video Bench):
 
 ```bash
-export GRPO_TEST_FILE="$(pwd)/data/urban_video_bench/grpo/uvb_grpo_test.jsonl"
+export GRPO_TEST_FILE="$(pwd)/data/urban_video_bench/grpo/uvb_grpo_test_strict.jsonl"
 # QWEN_PATH, OUTPUT_DIR 등은 위와 동일하게
 bash src/scripts/run_grpo_answer_only_lora.sh
 ```
 
 VideoMMMU / MMVU도 각각:
 
-- `data/video_mmmu/grpo/videommmu_grpo_test.jsonl`
-- `data/mmvu/grpo/mmvu_grpo_test.jsonl`
+- `data/video_mmmu/grpo/videommmu_grpo_test_strict.jsonl`
+- `data/mmvu/grpo/mmvu_grpo_test_strict.jsonl`
 
 학습이 끝나면 `output_dir` 아래에 **`test_predictions.jsonl`**이 생성됩니다(`grpo.py`의 `write_test_predictions_jsonl`).
 

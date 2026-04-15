@@ -445,7 +445,7 @@ data/mmvu/grpo/mmvu_grpo_test.jsonl
 
 가장 중요한 최종 입력 파일은 아래 네 개다.
 
-- Train: `data/video_r1/grpo/video_r1_grpo_train.jsonl`
-- Test 1 (UVB): `data/urban_video_bench/grpo/uvb_grpo_test.jsonl`
-- Test 2 (VideoMMMU): `data/video_mmmu/grpo/videommmu_grpo_test.jsonl`
-- Test 3 (MMVU): `data/mmvu/grpo/mmvu_grpo_test.jsonl`
+- Train: `data/video_r1/grpo/video_r1_grpo_train_strict.jsonl`
+- Test 1 (UVB): `data/urban_video_bench/grpo/uvb_grpo_test_strict.jsonl`
+- Test 2 (VideoMMMU): `data/video_mmmu/grpo/videommmu_grpo_test_strict.jsonl`
+- Test 3 (MMVU): `data/mmvu/grpo/mmvu_grpo_test_strict.jsonl`

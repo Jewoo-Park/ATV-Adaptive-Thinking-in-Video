@@ -26,6 +26,7 @@ def to_grpo_rows(
     out: list[dict] = []
     skipped_no_frames = 0
     skipped_invalid_answer = 0
+    skipped_invalid_gt_letter = 0
     for item in split_rows:
         frames = resolve_frame_paths(
             row=item,
@@ -42,6 +43,9 @@ def to_grpo_rows(
             skipped_invalid_answer += 1
             continue
         gt_letter = normalize_gt_letter(solution)
+        if gt_letter is None:
+            skipped_invalid_gt_letter += 1
+            continue
         out.append(
             {
                 "video_id": pick_video_id(item),
@@ -53,7 +57,11 @@ def to_grpo_rows(
                 "gt_letter": gt_letter,
             }
         )
-    return out, {"skipped_no_frames": skipped_no_frames, "skipped_invalid_answer": skipped_invalid_answer}
+    return out, {
+        "skipped_no_frames": skipped_no_frames,
+        "skipped_invalid_answer": skipped_invalid_answer,
+        "skipped_invalid_gt_letter": skipped_invalid_gt_letter,
+    }
 
 
 def convert_single_split(

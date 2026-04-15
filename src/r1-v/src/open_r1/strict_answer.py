@@ -47,8 +47,8 @@ def normalize_gt_letter(text: str) -> Optional[str]:
     return None
 
 
-def extract_strict_final_answer(text: str) -> Optional[str]:
-    result = parse_strict_output(text, task_type="any")
+def extract_strict_final_answer(text: str, task_type: str) -> Optional[str]:
+    result = parse_strict_output(text, task_type=task_type)
     return result.pred_letter if result.format_ok else None
 
 
@@ -58,9 +58,7 @@ def _allowed_reasoning_tags(task_type: str) -> tuple[str, ...]:
         return LENGTH_REASONING_TAGS
     if normalized == "perspective":
         return PERSPECTIVE_REASONING_TAGS
-    if normalized == "any":
-        return LENGTH_REASONING_TAGS + PERSPECTIVE_REASONING_TAGS
-    raise ValueError("task_type must be one of: length, perspective, any")
+    raise ValueError("task_type must be one of: length, perspective")
 
 
 def _classify_answer_malformed(text: str) -> Optional[str]:

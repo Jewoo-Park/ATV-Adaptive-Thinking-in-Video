@@ -73,9 +73,13 @@ def answer_accuracy_reward(completions, solution, **kwargs):
     rewards = []
     current_time = datetime.now().strftime("%d-%H-%M-%S-%f")
     for content, sol in zip(completion_contents, solution):
-        pred = parse_strict_output(content, task_type=_reward_task_type()).pred_letter
+        parsed = parse_strict_output(content, task_type=_reward_task_type())
         gt = normalize_gt_letter(sol)
-        reward = 1.0 if pred is not None and gt is not None and pred == gt else 0.0
+        reward = (
+            1.0
+            if parsed.format_ok and parsed.pred_letter is not None and gt is not None and parsed.pred_letter == gt
+            else 0.0
+        )
         rewards.append(reward)
         if os.getenv("DEBUG_MODE") == "true":
             log_path = os.getenv("LOG_PATH", "./logs/uvb_grpo_reward.log")
@@ -102,7 +106,7 @@ def write_test_predictions_jsonl(examples_completions: list[tuple[dict, str]], o
         for example, pred_raw in examples_completions:
             parsed = parse_strict_output(pred_raw, task_type=_reward_task_type())
             gt_answer = normalize_gt_letter(example["solution"])
-            correct = 1 if parsed.pred_letter is not None and parsed.pred_letter == gt_answer else 0
+            correct = 1 if parsed.format_ok and parsed.pred_letter is not None and parsed.pred_letter == gt_answer else 0
             row = {
                 "video_id": example.get("video_id", ""),
                 "question_id": example.get("question_id", 0),
